@@ -269,10 +269,10 @@ export function DailyView() {
   }, [date, moodEntries]);
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <div className="p-3 sm:p-6 flex flex-col gap-4 sm:gap-5">
       <div className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
-          <div className="font-display text-3xl text-ink-900">
+          <div className="font-display text-2xl sm:text-3xl text-ink-900">
             {isToday ? 'Today' : WEEKDAYS_LONG[dow]}
           </div>
           <div className="text-sm text-ink-400 mt-1">{formatLongDate(date)}</div>
@@ -332,13 +332,13 @@ export function DailyView() {
         <SectionHeader title="Wellness" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Water */}
-          <div className="card p-5">
+          <div className="card p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-500 grid place-items-center flex-shrink-0">
                   <Droplet className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="font-medium text-ink-900">Water</div>
                   <div className="text-xs text-ink-400 flex items-center gap-1.5">
                     <span>{WATER_OUNCES_PER_CUP} oz per cup · goal</span>
@@ -387,8 +387,8 @@ export function DailyView() {
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="font-display text-3xl text-sky-500 leading-none">
+              <div className="text-right flex-shrink-0">
+                <div className="font-display text-2xl sm:text-3xl text-sky-500 leading-none">
                   {waterOunces}
                   <span className="text-base text-ink-400 ml-1">oz</span>
                 </div>
@@ -439,13 +439,13 @@ export function DailyView() {
           </div>
 
           {/* Calories */}
-          <div className="card p-5">
+          <div className="card p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-clay-100 text-clay-400 grid place-items-center flex-shrink-0">
                   <Flame className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="font-medium text-ink-900">Calories</div>
                   <div className="text-xs text-ink-400 flex items-center gap-1.5">
                     <span>goal</span>
@@ -494,8 +494,8 @@ export function DailyView() {
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="font-display text-3xl text-clay-400 leading-none">
+              <div className="text-right flex-shrink-0">
+                <div className="font-display text-2xl sm:text-3xl text-clay-400 leading-none">
                   {calorieTotal.toLocaleString()}
                   <span className="text-base text-ink-400 ml-1">kcal</span>
                 </div>
@@ -642,8 +642,8 @@ export function DailyView() {
             Saved
           </div>
         </div>
-        <div className="card p-5">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="card p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             {MOOD_OPTIONS.map((m) => {
               const isActive = activeScore === m.score;
               return (
@@ -651,7 +651,7 @@ export function DailyView() {
                   key={m.score}
                   onClick={() => handlePickMood(m.score)}
                   className={clsx(
-                    'flex flex-col items-center gap-1 px-4 py-3 rounded-xl transition-all flex-1 min-w-[70px]',
+                    'flex flex-col items-center gap-1 px-2 sm:px-4 py-2 sm:py-3 rounded-xl transition-all flex-1 min-w-0 sm:min-w-[70px]',
                     isActive
                       ? 'bg-lavender-200/60 ring-2 ring-lavender-400 shadow-soft scale-[1.02]'
                       : 'bg-sand-50 hover:bg-sand-200',

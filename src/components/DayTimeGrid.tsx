@@ -115,9 +115,12 @@ export function DayTimeGrid({
             slot below.
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
             {unscheduled.map((b) => (
-              <div key={b.id} className="min-w-[180px] max-w-[260px]">
+              <div
+                key={b.id}
+                className="w-full sm:min-w-[180px] sm:max-w-[260px]"
+              >
                 {renderBlock(b, false)}
               </div>
             ))}
@@ -126,12 +129,13 @@ export function DayTimeGrid({
       </UnscheduledLane>
 
       <div className="flex">
-        {/* Hour labels — fixed-width left rail. */}
-        <div className="w-16 flex-shrink-0 border-r border-sand-200">
+        {/* Hour labels — fixed-width left rail.  Narrower on phones to keep
+            room for blocks. */}
+        <div className="w-12 sm:w-16 flex-shrink-0 border-r border-sand-200">
           {SLOT_HOURS.map((h) => (
             <div
               key={h}
-              className="px-3 text-[11px] font-medium text-ink-400 tabular-nums"
+              className="px-2 sm:px-3 text-[11px] font-medium text-ink-400 tabular-nums"
               style={{ height: HOUR_HEIGHT }}
             >
               <div className="-mt-1.5">{formatHourLabel(h)}</div>

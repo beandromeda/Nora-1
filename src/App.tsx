@@ -43,7 +43,11 @@ function Shell() {
         <main className="flex-1 overflow-y-auto">
           <MainContent />
         </main>
-        {topTab === 'planner' && <AssistantPanel />}
+        {topTab === 'planner' && (
+          <div className="hidden lg:flex">
+            <AssistantPanel />
+          </div>
+        )}
       </div>
     </div>
   );

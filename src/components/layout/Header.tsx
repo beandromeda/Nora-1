@@ -89,43 +89,46 @@ export function Header() {
 
   return (
     <header className="border-b border-sand-200 bg-sand-100/70 backdrop-blur sticky top-0 z-30">
-      <div className="flex items-center justify-between gap-4 px-6 py-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 px-3 sm:px-6 py-3 sm:py-4">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <div className="w-9 h-9 rounded-xl bg-sage-500 text-sand-50 grid place-items-center shadow-soft">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <div className="font-display text-2xl text-ink-900 leading-none">
+            <div className="font-display text-xl sm:text-2xl text-ink-900 leading-none">
               Nora
             </div>
-            <div className="text-xs text-ink-500 mt-0.5">
+            <div className="hidden sm:block text-xs text-ink-500 mt-0.5">
               a calm weekly planner
             </div>
           </div>
         </div>
 
-        <nav className="flex items-center gap-1 p-1 rounded-xl bg-sand-50 border border-sand-200">
+        <nav
+          className="flex items-center gap-1 p-1 rounded-xl bg-sand-50 border border-sand-200 overflow-x-auto max-w-full"
+          aria-label="Sections"
+        >
           {TOP_TABS.map(({ id, label: tabLabel, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setTopTab(id)}
               className={clsx(
-                'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex-shrink-0',
                 topTab === id
                   ? 'bg-sand-200 text-ink-900 shadow-soft'
                   : 'text-ink-500 hover:text-ink-700',
               )}
             >
               <Icon className="w-4 h-4" />
-              {tabLabel}
+              <span className="hidden sm:inline">{tabLabel}</span>
             </button>
           ))}
         </nav>
       </div>
 
       {topTab === 'planner' && (
-        <div className="flex items-center justify-between gap-4 px-6 pb-3 pt-0">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-3 px-3 sm:px-6 pb-3 pt-0 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <button className="btn-ghost" onClick={goPrev} aria-label="Previous">
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -135,7 +138,7 @@ export function Header() {
             <button className="btn-ghost" onClick={goNext} aria-label="Next">
               <ChevronRight className="w-4 h-4" />
             </button>
-            <div className="text-sm text-ink-700 font-medium ml-2 min-w-[210px]">
+            <div className="text-sm text-ink-700 font-medium ml-2 sm:min-w-[210px]">
               {label}
             </div>
           </div>
@@ -146,7 +149,7 @@ export function Header() {
                 key={m}
                 onClick={() => setViewMode(m)}
                 className={
-                  'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ' +
+                  'px-2.5 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ' +
                   (viewMode === m
                     ? 'bg-sand-200 text-ink-900 shadow-soft'
                     : 'text-ink-500 hover:text-ink-700')
