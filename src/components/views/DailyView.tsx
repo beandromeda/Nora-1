@@ -20,6 +20,7 @@ import {
 import { DayTimeGrid } from '../DayTimeGrid';
 import { CapacityBar } from '../CapacityBar';
 import { CapacityModal } from '../CapacityModal';
+import { MobileAssistantBar } from '../assistant/MobileAssistantBar';
 import { TaskDetailModal } from '../tasks/TaskDetailModal';
 import type { MoodScore } from '../../types';
 import { WATER_OUNCES_PER_CUP } from '../../types';
@@ -270,6 +271,11 @@ export function DailyView() {
 
   return (
     <div className="p-3 sm:p-6 flex flex-col gap-4 sm:gap-5">
+      {/* Mobile-only AI bar — the full assistant panel is hidden below lg. */}
+      <div className="lg:hidden">
+        <MobileAssistantBar />
+      </div>
+
       <div className="flex items-baseline justify-between gap-4 flex-wrap">
         <div>
           <div className="font-display text-2xl sm:text-3xl text-ink-900">
