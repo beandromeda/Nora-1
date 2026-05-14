@@ -5,7 +5,7 @@ import { CapacityBar } from '../CapacityBar';
 import { AlertTriangle, Heart } from '../icons';
 
 export function SettingsPage() {
-  const { settings, updateSettings, resetToSamples } = usePlanner();
+  const { settings, updateSettings, resetToSamples, signOut } = usePlanner();
   const [confirmReset, setConfirmReset] = useState(false);
 
   const setWeekday = (idx: number, hours: number) => {
@@ -217,8 +217,23 @@ export function SettingsPage() {
         )}
       </Section>
 
+      {/* Account */}
+      <Section
+        title="Account"
+        description="Sign out of this device. You'll need to magic-link in again to come back."
+      >
+        <button
+          onClick={() => {
+            void signOut();
+          }}
+          className="btn-ghost"
+        >
+          Sign out
+        </button>
+      </Section>
+
       <div className="text-center text-xs text-ink-400 py-4">
-        Settings live only in this browser.
+        Your data syncs to the cloud automatically.
       </div>
     </div>
   );

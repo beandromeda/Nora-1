@@ -1,5 +1,6 @@
 import { PlannerProvider } from './state/PlannerContext';
 import { usePlanner } from './state/usePlanner';
+import { AuthGate } from './components/AuthGate';
 import { Header } from './components/layout/Header';
 import { AssistantPanel } from './components/assistant/AssistantPanel';
 import { DailyView } from './components/views/DailyView';
@@ -55,8 +56,12 @@ function Shell() {
 
 export default function App() {
   return (
-    <PlannerProvider>
-      <Shell />
-    </PlannerProvider>
+    <AuthGate>
+      {(session) => (
+        <PlannerProvider userId={session.user.id}>
+          <Shell />
+        </PlannerProvider>
+      )}
+    </AuthGate>
   );
 }

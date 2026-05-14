@@ -6,9 +6,12 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
+import { fetchCloudState, pushCloudState } from '../lib/cloudSync';
+import { supabase } from '../lib/supabase';
 
 import type {
   AppSettings,
@@ -41,6 +44,22 @@ import {
 } from './plannerContextValue';
 
 const STORAGE_KEY = 'nora-planner.v1';
+
+/**
+ * Cloud state is canonical for everything *except* the vision board PDF —
+ * that lives only in localStorage (too large to round-trip through Supabase
+ * on every save). Layer the local PDF on top of the cloud row when hydrating.
+ */
+function mergeCloudIntoLocal(
+  cloud: PersistedState,
+  local: PersistedState,
+): PersistedState {
+  return {
+    ...cloud,
+    visionBoardPdf: local.visionBoardPdf,
+    visionBoardName: local.visionBoardName,
+  };
+}
 // The vision board PDF can be multi-MB; keep it in a separate localStorage
 // key so a quota failure on the PDF doesn't wipe the rest of the planner.
 const VISION_PDF_KEY = 'nora-planner.visionBoardPdf.v1';
@@ -134,7 +153,16 @@ function loadPersisted(): PersistedState {
   };
 }
 
-export function PlannerProvider({ children }: { children: ReactNode }) {
+interface ProviderProps {
+  children: ReactNode;
+  // Supabase user id — every save is keyed by this. Required because the
+  // provider is only mounted by AuthGate when a session exists.
+  userId: string;
+}
+
+export function PlannerProvider({ children, userId }: ProviderProps) {
+  // Synchronous first-paint state from localStorage (works offline + flicker-free).
+  // The cloud fetch on mount may overwrite this once it lands.
   const [state, setState] = useState<PersistedState>(() => loadPersisted());
   const [viewMode, setViewMode] = useState<ViewMode>('daily');
   const [topTab, setTopTab] = useState<TopTab>('planner');
@@ -143,6 +171,44 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     CapacityOverride | undefined
   >(undefined);
 
+  // Track when we've finished hydrating from the cloud. Until this flips
+  // true, we suppress the debounced cloud-write so the initial localStorage
+  // value doesn't immediately overwrite cloud state.
+  const hydratedRef = useRef(false);
+
+  // Hydrate from Supabase on mount (or when the user changes). If the cloud
+  // has a row, it's canonical and replaces local state. If it has nothing,
+  // we push our local state up as the first-login migration.
+  useEffect(() => {
+    let cancelled = false;
+    hydratedRef.current = false;
+    (async () => {
+      try {
+        const cloud = await fetchCloudState(userId);
+        if (cancelled) return;
+        if (cloud) {
+          setState((local) => mergeCloudIntoLocal(cloud as PersistedState, local));
+        } else {
+          // First login on this account — seed the cloud with whatever we
+          // have locally so existing on-device work isn't lost.
+          await pushCloudState(userId, state);
+        }
+      } catch (err) {
+        console.error('[planner] cloud hydrate failed:', err);
+        // Stay on local state; the user can keep working offline-style.
+      } finally {
+        if (!cancelled) hydratedRef.current = true;
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // We intentionally read `state` only at hydrate time — not as a dep — so
+    // unrelated state changes don't re-trigger a hydrate.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  // Local cache write — synchronous, every change.
   useEffect(() => {
     try {
       // Keep the PDF and its name in their own storage keys so a large PDF
@@ -155,6 +221,17 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
       // ignore quota errors
     }
   }, [state]);
+
+  // Debounced cloud write — fires 1s after the user stops editing.
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    const handle = window.setTimeout(() => {
+      pushCloudState(userId, state).catch((err) => {
+        console.error('[planner] cloud save failed:', err);
+      });
+    }, 1000);
+    return () => window.clearTimeout(handle);
+  }, [state, userId]);
 
   const addTask = useCallback((t: Omit<Task, 'id' | 'createdAt'>) => {
     setState((s) => ({
@@ -533,6 +610,17 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, notes: s.notes.filter((n) => n.id !== id) }));
   }, []);
 
+  const signOut = useCallback(async () => {
+    // Clear the local cache too so the next user on this device doesn't see
+    // stale state from a different account between login and cloud hydrate.
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    await supabase.auth.signOut();
+  }, []);
+
   const toggleAssistantCollapsed = useCallback(() => {
     setState((s) => ({ ...s, assistantCollapsed: !s.assistantCollapsed }));
   }, []);
@@ -629,6 +717,8 @@ export function PlannerProvider({ children }: { children: ReactNode }) {
     updateNote,
     deleteNote,
     toggleAssistantCollapsed,
+    userId,
+    signOut,
   };
 
   return (

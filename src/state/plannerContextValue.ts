@@ -107,6 +107,10 @@ export interface PlannerContextValue extends PersistedState {
 
   // Assistant panel collapse toggle
   toggleAssistantCollapsed: () => void;
+
+  // Auth
+  userId: string;
+  signOut: () => Promise<void>;
 }
 
 export const PlannerContext = createContext<PlannerContextValue | null>(null);
